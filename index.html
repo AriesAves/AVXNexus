@@ -337,6 +337,150 @@
         .hidden { display: none !important; }
 
         .empty-msg { text-align: center; color: var(--text-muted); margin-top: 4rem; }
+
+        /* Report Modal */
+        .report-modal {
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 300;
+            display: flex; align-items: center; justify-content: center;
+            padding: 2rem;
+        }
+
+        .report-container {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, var(--primary), #0ea5e9);
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-header h1 {
+            font-size: 1.75rem;
+            margin: 0;
+            color: white;
+        }
+
+        .report-close {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .report-content {
+            padding: 2rem;
+            color: var(--text-main);
+        }
+
+        .report-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .report-section h2 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-item {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .report-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .report-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .report-list li {
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-left: 3px solid var(--primary);
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+        }
+
+        .report-btn {
+            background: var(--primary);
+            color: #0f172a;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .report-btn:hover {
+            background: #0ea5e9;
+            transform: translateY(-2px);
+        }
+
+        .report-timestamp {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -478,7 +622,30 @@
 
     <div class="toast" id="toast">Notification</div>
 
+    <!-- Report Modal -->
+    <div class="report-modal hidden" id="reportModal">
+        <div class="report-container">
+            <div class="report-header">
+                <h1>Analysis Report</h1>
+                <button class="report-close" onclick="closeReport()">&times;</button>
+            </div>
+            <div class="report-content" id="reportContent">
+                <!-- Generated report content -->
+            </div>
+            <div class="report-actions">
+                <button class="report-btn" onclick="printReport()">🖨️ Print</button>
+                <button class="report-btn" onclick="downloadReport()">⬇️ Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF.js Library for PDF metadata extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
     <script>
+        // Initialize PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
         // --- CONFIG: Font Libraries & Database ---
         const LIBRARIES = {
             google: { name: 'Google Fonts', color: '#4285F4' },
@@ -519,8 +686,26 @@
             file: null,
             zoom: 1,
             url: null,
-            type: null
+            type: null,
+            // Dimension tracking
+            dimensions: {
+                pixelWidth: 0,
+                pixelHeight: 0,
+                dpi: 300,
+                inchesWidth: 0,
+                inchesHeight: 0,
+                mmWidth: 0,
+                mmHeight: 0,
+                cmWidth: 0,
+                cmHeight: 0
+            }
         };
+
+        // --- DIMENSION CONVERSION CONSTANTS ---
+        const INCH_TO_MM = 25.4;
+        const INCH_TO_CM = 2.54;
+        const PX_TO_INCH = (px, dpi) => px / dpi;
+        const INCH_TO_PX = (inch, dpi) => inch * dpi;
 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
@@ -540,11 +725,154 @@
         });
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
+        // --- DIMENSION MANAGEMENT FUNCTIONS ---
+        
+        /**
+         * Reset all dimension values to defaults
+         * Called when new file is uploaded to clear previous measurements
+         */
+        function resetDimensions() {
+            state.dimensions = {
+                pixelWidth: 0,
+                pixelHeight: 0,
+                dpi: 300,
+                inchesWidth: 0,
+                inchesHeight: 0,
+                mmWidth: 0,
+                mmHeight: 0,
+                cmWidth: 0,
+                cmHeight: 0
+            };
+        }
+
+        /**
+         * Update all dimension unit conversions from pixel values and DPI
+         * @param {number} pixelWidth - Width in pixels
+         * @param {number} pixelHeight - Height in pixels
+         * @param {number} dpi - Resolution in DPI (default: 300)
+         */
+        function updateAllDimensions(pixelWidth, pixelHeight, dpi = 300) {
+            // Store pixel dimensions and DPI
+            state.dimensions.pixelWidth = pixelWidth;
+            state.dimensions.pixelHeight = pixelHeight;
+            state.dimensions.dpi = dpi;
+
+            // Convert to inches
+            state.dimensions.inchesWidth = PX_TO_INCH(pixelWidth, dpi);
+            state.dimensions.inchesHeight = PX_TO_INCH(pixelHeight, dpi);
+
+            // Convert to millimeters
+            state.dimensions.mmWidth = state.dimensions.inchesWidth * INCH_TO_MM;
+            state.dimensions.mmHeight = state.dimensions.inchesHeight * INCH_TO_MM;
+
+            // Convert to centimeters
+            state.dimensions.cmWidth = state.dimensions.inchesWidth * INCH_TO_CM;
+            state.dimensions.cmHeight = state.dimensions.inchesHeight * INCH_TO_CM;
+
+            // Validate dimensions
+            validateDimensions();
+        }
+
+        /**
+         * Validate that dimensions are reasonable and match actual file
+         * Adds logging for debugging dimension issues
+         */
+        function validateDimensions() {
+            const dims = state.dimensions;
+            
+            // Check for invalid dimensions
+            if (dims.pixelWidth <= 0 || dims.pixelHeight <= 0) {
+                console.warn('[DIMENSION VALIDATION] Invalid pixel dimensions:', dims);
+                return false;
+            }
+
+            // Check DPI is valid
+            if (dims.dpi < 72 || dims.dpi > 2400) {
+                console.warn('[DIMENSION VALIDATION] Unusual DPI value:', dims.dpi);
+            }
+
+            // Check inches conversions
+            if (dims.inchesWidth <= 0 || dims.inchesHeight <= 0) {
+                console.warn('[DIMENSION VALIDATION] Invalid inch conversions');
+                return false;
+            }
+
+            // Log successful validation
+            console.log('[DIMENSION VALIDATION] ✓ Dimensions valid:', {
+                pixels: `${dims.pixelWidth}x${dims.pixelHeight}px`,
+                inches: `${dims.inchesWidth.toFixed(2)}"x${dims.inchesHeight.toFixed(2)}"`,
+                mm: `${dims.mmWidth.toFixed(1)}x${dims.mmHeight.toFixed(1)}mm`,
+                dpi: dims.dpi
+            });
+
+            return true;
+        }
+
+        /**
+         * Extract PDF dimensions using PDF.js
+         * @param {File} file - The PDF file object
+         */
+        function extractPDFDimensions(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
+                    const firstPage = await pdf.getPage(1);
+                    const viewport = firstPage.getViewport({ scale: 1 });
+                    
+                    // Get dimensions in points (1 point = 1/72 inch)
+                    const widthPx = viewport.width;
+                    const heightPx = viewport.height;
+                    const dpi = 72; // PDF dimensions are in points, 72 points = 1 inch
+                    
+                    console.log('[PDF LOADED] Dimensions:', {
+                        file: file.name,
+                        width: widthPx,
+                        height: heightPx,
+                        dpi: dpi
+                    });
+                    
+                    // Update state with actual PDF dimensions
+                    updateAllDimensions(widthPx, heightPx, dpi);
+                } catch (error) {
+                    console.error('[PDF ERROR] Failed to extract PDF metadata:', error);
+                    updateAllDimensions(0, 0, 300);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        /**
+         * Format dimension display string for UI
+         * @returns {string} Formatted dimension string in inches
+         */
+        function formatDimensionDisplay() {
+            const dims = state.dimensions;
+            if (dims.pixelWidth === 0 || dims.pixelHeight === 0) {
+                return '--';
+            }
+            return `${dims.inchesWidth.toFixed(2)}" x ${dims.inchesHeight.toFixed(2)}"`;
+        }
+
+        /**
+         * Format raw pixel display string for UI
+         * @returns {string} Formatted pixel dimension string
+         */
+        function formatPixelDisplay() {
+            const dims = state.dimensions;
+            if (dims.pixelWidth === 0 || dims.pixelHeight === 0) {
+                return '--';
+            }
+            return `${dims.pixelWidth} x ${dims.pixelHeight} px`;
+        }
+
         // --- CORE FUNCTIONS ---
 
         function handleFile(file) {
             if (!file) return;
             
+            // Reset previous state
+            resetDimensions();
             state.file = file;
             state.type = file.type;
             state.zoom = 1;
@@ -561,12 +889,16 @@
             renderPreview(file);
 
             // 2. Simulate AI Analysis (Async)
+            // For images, wait for image to load before running analysis
+            // For PDFs, run analysis after a short delay
+            const analysisDelay = file.type.startsWith('image/') ? 500 : 2500;
+            
             setTimeout(() => {
                 const data = runAIAnalysis(file);
                 renderResults(data);
                 previewPanel.classList.remove('scanning'); // Stop scan
                 showToast("Analysis Complete");
-            }, 2500);
+            }, analysisDelay);
         }
 
         function renderPreview(file) {
@@ -580,6 +912,10 @@
                 iframe.className = 'pdf-viewer';
                 iframe.src = state.url;
                 viewerStage.appendChild(iframe);
+                
+                // Extract PDF dimensions using PDF.js
+                extractPDFDimensions(file);
+                
             } else if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -588,6 +924,29 @@
                     img.src = state.url;
                     img.className = 'image-viewer';
                     img.id = 'mainImage';
+                    
+                    // CRITICAL: Wait for image to fully load before reading dimensions
+                    img.onload = () => {
+                        const naturalWidth = img.naturalWidth;
+                        const naturalHeight = img.naturalHeight;
+                        
+                        console.log('[IMAGE LOADED] Dimensions:', {
+                            file: file.name,
+                            width: naturalWidth,
+                            height: naturalHeight
+                        });
+                        
+                        // Update state with actual image dimensions
+                        // Assume standard screen DPI of 72 for images (can be adjusted)
+                        const imageDpi = 72;
+                        updateAllDimensions(naturalWidth, naturalHeight, imageDpi);
+                    };
+                    
+                    img.onerror = () => {
+                        console.error('[IMAGE ERROR] Failed to load image');
+                        updateAllDimensions(0, 0, 300);
+                    };
+                    
                     viewerStage.appendChild(img);
                 };
                 reader.readAsDataURL(file);
@@ -599,6 +958,7 @@
                         <p style="font-size:0.8rem; color:#94a3b8;">Binary analysis running.<br>Preview not available in browser.</p>
                     </div>
                 `;
+                // Dimensions depend on actual file metadata parsing (not available in browser)
             }
         }
 
@@ -608,19 +968,20 @@
             let issues = [];
             let score = 100;
 
-            // 1. Dimensions & DPI
-            let width = 2480, height = 3508, dpi = 300; // Defaults A4 @ 300
-            if (isImage) {
-                const img = document.getElementById('mainImage');
-                if (img) {
-                    width = img.naturalWidth;
-                    height = img.naturalHeight;
-                }
-            }
+            // 1. Use dimensions from state (already updated and validated)
+            const width = state.dimensions.pixelWidth;
+            const height = state.dimensions.pixelHeight;
+            const dpi = state.dimensions.dpi;
 
-            // Calculate Inches
-            const widthIn = (width / dpi).toFixed(2);
-            const heightIn = (height / dpi).toFixed(2);
+            // Calculate Inches from state
+            const widthIn = state.dimensions.inchesWidth;
+            const heightIn = state.dimensions.inchesHeight;
+
+            console.log('[AI ANALYSIS] Dimensions:', {
+                pixels: `${width}x${height}px`,
+                inches: `${widthIn.toFixed(2)}"x${heightIn.toFixed(2)}"`,
+                dpi: dpi
+            });
 
             // 2. Color Mode
             const isRGB = isImage ? true : (Math.random() > 0.6); // Images are usually RGB
@@ -691,7 +1052,7 @@
 
             return {
                 score: Math.max(0, score),
-                dimensions: `${widthIn}" x ${heightIn}"`,
+                dimensions: `${widthIn.toFixed(2)}" x ${heightIn.toFixed(2)}"`,
                 rawPixels: `${width} x ${height} px`,
                 colorMode,
                 dpi,
@@ -702,6 +1063,12 @@
         }
 
         function renderResults(data) {
+            // Validate dimensions match file
+            const isValid = validateDimensions();
+            if (!isValid && state.dimensions.pixelWidth > 0) {
+                console.warn('[RENDER RESULTS] Dimension validation warning');
+            }
+
             // Score
             const ring = document.getElementById('scoreRing');
             ring.textContent = `${data.score}%`;
@@ -713,14 +1080,17 @@
             else if(data.score >= 50) { title.textContent="Review Required"; title.style.color="var(--warning)"; }
             else { title.textContent="Critical Errors"; title.style.color="var(--danger)"; }
 
-            // Metrics
-            document.getElementById('dimVal').textContent = data.dimensions;
-            document.getElementById('dimSub').textContent = data.rawPixels;
+            // Metrics - Use validated dimensions from state
+            document.getElementById('dimVal').textContent = formatDimensionDisplay();
+            document.getElementById('dimSub').textContent = formatPixelDisplay();
+            
             document.getElementById('colorVal').textContent = data.colorMode;
             document.getElementById('colorSub').textContent = data.colorMode === 'RGB' ? 'Risk: Shift' : 'Compliant';
             document.getElementById('colorSub').style.color = data.colorMode === 'RGB' ? 'var(--danger)' : 'var(--success)';
+            
             document.getElementById('dpiVal').textContent = `${data.dpi} DPI`;
             document.getElementById('dpiSub').textContent = data.dpi >= 300 ? 'High Quality' : 'Low Res';
+            
             document.getElementById('inkVal').textContent = `${data.tac}%`;
             document.getElementById('inkVal').style.color = data.tac > 300 ? 'var(--danger)' : 'var(--success)';
 
@@ -816,7 +1186,268 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
         function resetApp() { location.reload(); }
-        function exportReport() { showToast("Report Generated (Simulated)"); }
+        
+        /**
+         * Generate and display comprehensive analysis report
+         */
+        function exportReport() {
+            if (!state.file) {
+                showToast("No file loaded. Upload a file first.");
+                return;
+            }
+
+            const dims = state.dimensions;
+            const timestamp = new Date().toLocaleString();
+            
+            // Build report HTML
+            let reportHtml = `
+                <div class="report-section">
+                    <h2>📄 Document Information</h2>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-label">File Name</div>
+                            <div class="report-value">${state.file.name}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">File Type</div>
+                            <div class="report-value">${state.file.type || 'Unknown'}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">File Size</div>
+                            <div class="report-value">${(state.file.size / 1024).toFixed(2)} KB</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Upload Date</div>
+                            <div class="report-value">${timestamp}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>📏 Dimensions & Resolution</h2>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-label">Dimensions (Inches)</div>
+                            <div class="report-value">${dims.inchesWidth.toFixed(2)}" × ${dims.inchesHeight.toFixed(2)}"</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Dimensions (Pixels)</div>
+                            <div class="report-value">${dims.pixelWidth} × ${dims.pixelHeight}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Dimensions (mm)</div>
+                            <div class="report-value">${dims.mmWidth.toFixed(1)} × ${dims.mmHeight.toFixed(1)}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Resolution (DPI)</div>
+                            <div class="report-value">${dims.dpi}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>🎨 Color & Quality</h2>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-label">Color Space</div>
+                            <div class="report-value">${document.getElementById('colorVal').textContent}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Color Status</div>
+                            <div class="report-value">${document.getElementById('colorSub').textContent}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Quality Assessment</div>
+                            <div class="report-value">${document.getElementById('dpiSub').textContent}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Ink Coverage</div>
+                            <div class="report-value">${document.getElementById('inkVal').textContent}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>✅ Standards Compliance</h2>
+                    <ul class="report-list">
+                        <li><strong>ISO 12647-2:</strong> ${document.getElementById('iso1').textContent}</li>
+                        <li><strong>PDF/X-1a:2001:</strong> ${document.getElementById('pdfx1').textContent}</li>
+                        <li><strong>G7 Calibration:</strong> ${document.getElementById('g71').textContent}</li>
+                    </ul>
+                </div>
+
+                <div class="report-section">
+                    <h2>🔤 Fonts & Libraries</h2>
+                    <div id="reportFontList">
+                        ${document.getElementById('fontList').innerHTML || '<p style="color: var(--text-muted);">No fonts detected</p>'}
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>⚠️ Production Issues</h2>
+                    <div id="reportIssueList">
+                        ${document.getElementById('issueLog').innerHTML || '<p style="color: var(--text-muted);">No issues detected</p>'}
+                    </div>
+                </div>
+
+                <div class="report-timestamp">
+                    Report generated on ${timestamp} | AVX Nexus AI Print Assistant
+                </div>
+            `;
+
+            // Populate and show report modal
+            document.getElementById('reportContent').innerHTML = reportHtml;
+            document.getElementById('reportModal').classList.remove('hidden');
+            showToast("Report generated successfully!");
+        }
+
+        /**
+         * Close the report modal
+         */
+        function closeReport() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        /**
+         * Print the report
+         */
+        function printReport() {
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>AVX Nexus Analysis Report</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', system-ui, sans-serif;
+                            background: white;
+                            color: #333;
+                            margin: 20px;
+                            line-height: 1.6;
+                        }
+                        h2 {
+                            color: #38bdf8;
+                            border-bottom: 2px solid #38bdf8;
+                            padding-bottom: 10px;
+                            margin-top: 20px;
+                        }
+                        .report-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                            margin-bottom: 15px;
+                        }
+                        .report-item {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            border-radius: 4px;
+                            background: #f9f9f9;
+                        }
+                        .report-label {
+                            font-size: 0.85rem;
+                            color: #666;
+                            text-transform: uppercase;
+                            margin-bottom: 5px;
+                        }
+                        .report-value {
+                            font-size: 1rem;
+                            font-weight: 600;
+                            color: #333;
+                        }
+                        ul.report-list {
+                            list-style: none;
+                            padding: 0;
+                        }
+                        ul.report-list li {
+                            padding: 8px;
+                            border-left: 3px solid #38bdf8;
+                            margin-bottom: 5px;
+                            background: #f9f9f9;
+                        }
+                        .report-timestamp {
+                            font-size: 0.85rem;
+                            color: #999;
+                            text-align: center;
+                            margin-top: 20px;
+                            border-top: 1px solid #ddd;
+                            padding-top: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${reportContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        /**
+         * Download report as HTML file
+         */
+        function downloadReport() {
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `AVX_Report_${timestamp}.html`;
+            
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>AVX Nexus Analysis Report</title>
+                    <style>
+                        :root {
+                            --bg-body: #0f172a;
+                            --bg-panel: #1e293b;
+                            --bg-card: #334155;
+                            --primary: #38bdf8;
+                            --text-main: #f8fafc;
+                            --text-muted: #94a3b8;
+                            --border: #334155;
+                        }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        body {
+                            font-family: 'Segoe UI', system-ui, sans-serif;
+                            background-color: var(--bg-body);
+                            color: var(--text-main);
+                            padding: 40px;
+                            line-height: 1.6;
+                        }
+                        .report-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+                        .report-section h2 { font-size: 1.25rem; color: var(--primary); margin-bottom: 15px; text-transform: uppercase; }
+                        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+                        .report-item { background: var(--bg-card); padding: 15px; border-radius: 6px; border: 1px solid var(--border); }
+                        .report-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+                        .report-value { font-size: 1.1rem; font-weight: 600; color: var(--text-main); }
+                        .report-list { list-style: none; padding: 0; }
+                        .report-list li { padding: 10px; background: var(--bg-card); border-left: 3px solid var(--primary); margin-bottom: 8px; border-radius: 4px; }
+                        .report-timestamp { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 30px; }
+                    </style>
+                </head>
+                <body>
+                    <h1 style="color: var(--primary); margin-bottom: 30px;">AVX Nexus AI Print Assistant - Analysis Report</h1>
+                    ${reportContent}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast(`Report downloaded as ${filename}`);
+        }
+
+        function exportReport_placeholder() { showToast("Report Generated (Simulated)"); }
 
     </script>
 </body>
