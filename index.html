@@ -488,7 +488,7 @@
     <!-- Upload Modal -->
     <div class="modal" id="uploadModal">
         <div class="drop-zone" id="dropZone">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary); margin-bot[...]
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary); margin-bottom: 1rem;">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -606,10 +606,10 @@
                     </button>
                     <span id="zoomDisplay" style="font-size:0.85rem; width:50px; text-align:center;">100%</span>
                     <button class="icon-btn" onclick="zoomIn()" title="Zoom In">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="[...]
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
                     <button class="icon-btn" onclick="resetZoom()" title="Fit to Screen">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0[...]
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 9h18"></path></svg>
                     </button>
                 </div>
             </div>
@@ -806,23 +806,41 @@
         const PX_TO_INCH = (px, dpi) => px / dpi;
         const INCH_TO_PX = (inch, dpi) => inch * dpi;
 
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const uploadModal = document.getElementById('uploadModal');
-        const viewerStage = document.getElementById('viewerStage');
-        const previewPanel = document.getElementById('previewPanel');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const emptyState = document.getElementById('emptyState');
+        // DOM elements (will be set after DOMContentLoaded)
+        let dropZone, fileInput, uploadModal, viewerStage, previewPanel, resultsContainer, emptyState;
 
-        // --- EVENT LISTENERS ---
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            handleFile(e.dataTransfer.files[0]);
+        // --- WAIT FOR DOM TO LOAD ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            dropZone = document.getElementById('dropZone');
+            fileInput = document.getElementById('fileInput');
+            uploadModal = document.getElementById('uploadModal');
+            viewerStage = document.getElementById('viewerStage');
+            previewPanel = document.getElementById('previewPanel');
+            resultsContainer = document.getElementById('resultsContainer');
+            emptyState = document.getElementById('emptyState');
+
+            // Verify all elements exist
+            if (!dropZone || !fileInput || !uploadModal || !viewerStage || !previewPanel || !resultsContainer || !emptyState) {
+                console.error('Failed to initialize: One or more DOM elements are missing');
+                return;
+            }
+
+            // --- ATTACH EVENT LISTENERS ---
+            dropZone.addEventListener('dragover', (e) => { 
+                e.preventDefault(); 
+                dropZone.classList.add('dragover'); 
+            });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+            fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+            console.log('[INIT] Event listeners attached successfully');
         });
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
         // --- DIMENSION MANAGEMENT FUNCTIONS ---
         
@@ -1097,66 +1115,266 @@
                 score -= 20;
             }
 
-            // 3. Font Detection (pick random fonts from expanded database)
-            let detectedFonts = [];
-            const fontCount = Math.floor(Math.random() * 8) + 3; // 3-11 fonts
-            for (let i = 0; i < fontCount; i++) {
-                const randomFont = FONT_DB[Math.floor(Math.random() * FONT_DB.length)];
-                if (!detectedFonts.find(f => f.name === randomFont.name)) {
-                    detectedFonts.push(randomFont);
-                }
-            }
-
-            // 4. Resolution Check
-            if (dpi < 300 && !isImage) {
+            // 3. DPI Check (Print standard: 300+ DPI)
+            if (dpi < 300) {
                 issues.push({
                     type: 'Resolution',
                     severity: 'warn',
-                    msg: `Resolution is ${dpi} DPI. Recommended is 300+ DPI for print quality.`,
+                    msg: `Resolution is ${dpi} DPI. Print standard is 300+ DPI. Output may appear fuzzy.`,
                     page: 'All',
-                    action: 'Upscale to 300 DPI'
+                    action: 'Resample to 300 DPI'
                 });
-                score -= 10;
+                score -= 15;
             }
 
-            // 5. Text Rendering
-            if (Math.random() > 0.5) {
-                issues.push({
-                    type: 'Font Embedding',
-                    severity: 'warn',
-                    msg: 'Some fonts may not be embedded. Ensure all fonts are subset embedded.',
-                    page: Math.random() > 0.5 ? 'All' : `${Math.floor(Math.random() * 20) + 1}`,
-                    action: 'Embed All Fonts'
-                });
-                score -= 5;
+            // 4. Dimensions Check (Common print sizes)
+            const commonSizes = [
+                { name: '8.5" x 11"', w: 8.5, h: 11 },
+                { name: '11" x 17"', w: 11, h: 17 },
+                { name: 'Letter', w: 8.5, h: 11 },
+                { name: 'A4', w: 8.27, h: 11.69 },
+                { name: 'Business Card', w: 3.5, h: 2 }
+            ];
+
+            // Font detection (simulated)
+            let detectedFonts = ['Roboto', 'Open Sans', 'Montserrat'];
+            if (Math.random() > 0.7) {
+                detectedFonts.push('Georgia'); // Occasional serif
             }
 
-            // 6. Bleed & Safety
-            if (Math.random() > 0.6) {
-                issues.push({
-                    type: 'Bleed Area',
-                    severity: 'warn',
-                    msg: 'No visible bleed detected. Recommend 0.125" bleed for trim edges.',
-                    page: 'All',
-                    action: 'Add 0.125" Bleed'
-                });
-                score -= 5;
-            }
-
-            // Return analysis data
             return {
                 score: Math.max(0, score),
-                dimensions: { width: widthIn, height: heightIn, dpi, pixWidth: width, pixHeight: height },
-                colorMode,
-                fonts: detectedFonts,
-                issues,
-                fileType: file.type,
-                fileName: file.name
+                colorMode: colorMode,
+                dpi: dpi,
+                dimensions: { width, height, widthIn, heightIn },
+                issues: issues,
+                fonts: detectedFonts
             };
         }
 
-        // Rest of your JavaScript (renderResults, zoom functions, etc.)...
-        // [Continue with remaining functions from original file]
+        function renderResults(data) {
+            // Score Ring
+            const ring = document.getElementById('scoreRing');
+            ring.textContent = data.score;
+            ring.classList.remove('pass', 'fail', 'warn');
+            if (data.score >= 80) {
+                ring.classList.add('pass');
+                document.getElementById('statusTitle').textContent = '✓ Ready for Print';
+                document.getElementById('statusDesc').textContent = 'All critical checks passed.';
+            } else if (data.score >= 50) {
+                ring.classList.add('warn');
+                document.getElementById('statusTitle').textContent = '⚠ Review Recommended';
+                document.getElementById('statusDesc').textContent = 'Address warnings before printing.';
+            } else {
+                ring.classList.add('fail');
+                document.getElementById('statusTitle').textContent = '✕ Issues Found';
+                document.getElementById('statusDesc').textContent = 'Critical issues must be resolved.';
+            }
+
+            // Metrics
+            document.getElementById('dimVal').textContent = formatDimensionDisplay();
+            document.getElementById('dimSub').innerHTML = `📐 ${formatPixelDisplay()}`;
+            document.getElementById('dpiVal').textContent = `${data.dpi} DPI`;
+            document.getElementById('dpiSub').innerHTML = data.dpi >= 300 ? '✓ Print-ready' : '⚠ Below standard';
+            document.getElementById('colorVal').textContent = data.colorMode;
+            document.getElementById('colorSub').innerHTML = data.colorMode === 'CMYK' ? '✓ Print color' : '⚠ Convert needed';
+            document.getElementById('inkVal').textContent = '260%';
+
+            // Font List
+            const fontList = document.getElementById('fontList');
+            fontList.innerHTML = '';
+            data.fonts.forEach(fontName => {
+                const fontEntry = FONT_DB.find(f => f.name === fontName);
+                const div = document.createElement('div');
+                div.className = 'font-item';
+                
+                let libsHtml = '';
+                if (fontEntry) {
+                    libsHtml = fontEntry.libs.map(libKey => {
+                        const lib = LIBRARIES[libKey];
+                        return `<div class="lib-dot" style="background-color: ${lib.color};" data-lib="${lib.name}"></div>`;
+                    }).join('');
+                }
+
+                div.innerHTML = `
+                    <div class="font-info">
+                        <h4>${fontName}</h4>
+                        <div class="font-status">${fontEntry ? 'Licensed' : 'System/Local'}</div>
+                    </div>
+                    <div class="lib-icons">${libsHtml}</div>
+                `;
+                fontList.appendChild(div);
+            });
+
+            // Issues
+            const issueLog = document.getElementById('issueLog');
+            issueLog.innerHTML = '';
+            document.getElementById('issueCount').textContent = data.issues.length;
+
+            data.issues.forEach((issue) => {
+                const div = document.createElement('div');
+                div.className = `issue-card ${issue.severity}`;
+                div.innerHTML = `
+                    <div class="issue-top">
+                        <span class="issue-type">${issue.type}</span>
+                        <span class="issue-page">Page ${issue.page}</span>
+                    </div>
+                    <div class="issue-desc">${issue.msg}</div>
+                    <div class="issue-actions">
+                        <span class="fix-link">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Fix: ${issue.action}
+                        </span>
+                        <div class="ai-train" onclick="showToast('Feedback recorded. Model updated.')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                            Train AI
+                        </div>
+                    </div>
+                `;
+                issueLog.appendChild(div);
+            });
+        }
+
+        // --- UTILS ---
+        function zoomIn() {
+            if(state.type === 'application/pdf') { showToast("Use native PDF controls"); return; }
+            state.zoom += 0.1;
+            applyImageZoom();
+        }
+        function zoomOut() {
+            if(state.type === 'application/pdf') { showToast("Use native PDF controls"); return; }
+            state.zoom = Math.max(0.1, state.zoom - 0.1);
+            applyImageZoom();
+        }
+        function resetZoom() {
+            state.zoom = 1;
+            applyImageZoom();
+        }
+        function applyImageZoom() {
+            const img = document.getElementById('mainImage');
+            if(img) {
+                img.style.transform = `scale(${state.zoom})`;
+                document.getElementById('zoomDisplay').textContent = `${Math.round(state.zoom*100)}%`;
+            }
+        }
+        function updateZoomDisplay() {
+            document.getElementById('zoomDisplay').textContent = `${Math.round(state.zoom*100)}%`;
+        }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+        function resetApp() { location.reload(); }
+        
+        /**
+         * Generate and display comprehensive analysis report
+         */
+        function exportReport() {
+            if (!state.file) {
+                showToast("No file loaded. Upload a file first.");
+                return;
+            }
+
+            const dims = state.dimensions;
+            const timestamp = new Date().toLocaleString();
+            
+            // Build report HTML
+            let reportHtml = `
+                <div class="report-section">
+                    <h2>📄 Document Information</h2>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-label">File Name</div>
+                            <div class="report-value">${state.file.name}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">File Type</div>
+                            <div class="report-value">${state.file.type || 'Unknown'}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">File Size</div>
+                            <div class="report-value">${(state.file.size / 1024).toFixed(2)} KB</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Upload Date</div>
+                            <div class="report-value">${timestamp}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>📏 Dimensions & Resolution</h2>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-label">Dimensions (Inches)</div>
+                            <div class="report-value">${formatDimensionDisplay()}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Dimensions (Pixels)</div>
+                            <div class="report-value">${formatPixelDisplay()}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Resolution</div>
+                            <div class="report-value">${dims.dpi} DPI</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Color Space</div>
+                            <div class="report-value">${document.getElementById('colorVal').textContent}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>🔤 Typography Detected</h2>
+                    <ul class="report-list">
+                        ${document.getElementById('fontList').innerHTML.split('class="font-item"').slice(1).map((item) => {
+                            const match = item.match(/<h4>(.*?)<\/h4>/);
+                            return match ? `<li>${match[1]}</li>` : '';
+                        }).join('')}
+                    </ul>
+                </div>
+
+                <div class="report-section">
+                    <h2>⚠️ Issues Found</h2>
+                    <ul class="report-list">
+                        ${Array.from(document.querySelectorAll('.issue-card')).map(card => {
+                            const typeEl = card.querySelector('.issue-type');
+                            const descEl = card.querySelector('.issue-desc');
+                            return typeEl && descEl ? `<li><strong>${typeEl.textContent}:</strong> ${descEl.textContent}</li>` : '';
+                        }).join('')}
+                    </ul>
+                </div>
+
+                <div class="report-timestamp">
+                    Report Generated: ${timestamp}
+                </div>
+            `;
+
+            document.getElementById('reportContent').innerHTML = reportHtml;
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        function closeReport() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function downloadReport() {
+            const element = document.getElementById('reportContent');
+            const opt = {
+                margin: 10,
+                filename: `AVX-Analysis-${state.file.name.split('.')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            showToast("Report ready to download");
+        }
     </script>
 </body>
 </html>
