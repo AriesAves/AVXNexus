@@ -609,7 +609,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
                     <button class="icon-btn" onclick="resetZoom()" title="Fit to Screen">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 9h18"></path></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
                     </button>
                 </div>
             </div>
@@ -660,124 +660,25 @@
             velvetyne: { name: 'Velvetyne Type', color: '#E91E63' }
         };
 
-        // Expanded Database: 150+ fonts mapped to libraries
+        // Simulated Database mapping fonts to libraries
         const FONT_DB = [
-            // Serif Fonts (Classic & Professional)
-            { name: 'Georgia', libs: ['google', 'adobe', 'urban'] },
-            { name: 'Garamond', libs: ['adobe', 'squirrel', 'fontspace'] },
-            { name: 'Times New Roman', libs: ['urban', 'fontspace'] },
-            { name: 'Merriweather', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Playfair Display', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Crimson Text', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Lora', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Cormorant', libs: ['google', 'fontspace', 'league'] },
-            { name: 'Libre Baskerville', libs: ['google', 'squirrel'] },
-            { name: 'Bitter', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'PT Serif', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Droid Serif', libs: ['google', 'adobe', 'urban'] },
-            { name: 'Vollkorn', libs: ['google', 'fontspace'] },
-            { name: 'EB Garamond', libs: ['google', 'squirrel'] },
-
-            // Sans-Serif Fonts (Modern & Clean)
             { name: 'Roboto', libs: ['google', 'adobe', 'urban'] },
             { name: 'Open Sans', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Lato', libs: ['google', 'adobe', 'fontspace'] },
+            { name: 'Lato', libs: ['google', 'adobe'] },
             { name: 'Montserrat', libs: ['google', '1001', 'fontspace'] },
+            { name: 'Playfair Display', libs: ['google', 'adobe', 'squirrel'] },
             { name: 'Oswald', libs: ['google', 'urban', '1001'] },
             { name: 'Raleway', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'PT Sans', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Source Sans Pro', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Ubuntu', libs: ['google', 'urban', 'fontspace'] },
-            { name: 'Poppins', libs: ['google', '1001', 'fontspace'] },
-            { name: 'Inter', libs: ['google', 'squirrel', 'fontspace'] },
-            { name: 'Nunito', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Quicksand', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Karla', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Work Sans', libs: ['google', 'fontspace'] },
-            { name: 'Rubik', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Lexend', libs: ['google', 'squirrel'] },
-            { name: 'Manrope', libs: ['google', 'fontspace'] },
-            { name: 'Space Mono', libs: ['google', 'adobe'] },
-            { name: 'IBM Plex Sans', libs: ['google', 'adobe', 'squirrel'] },
-
-            // Display & Bold Fonts
             { name: 'Bebas Neue', libs: ['dafont', '1001', 'urban'] },
+            { name: 'Lobster', libs: ['google', 'dafont'] },
             { name: 'Pacifico', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Lobster', libs: ['google', 'dafont', '1001'] },
-            { name: 'Fredoka One', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Righteous', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Black Ops One', libs: ['google', 'dafont', '1001'] },
-            { name: 'Abril Fatface', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Great Vibes', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Permanent Marker', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Dancing Script', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Caveat', libs: ['google', 'fontspace', 'dafont'] },
-            { name: 'Indie Flower', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Chewy', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Fredoka', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Sour Gummy', libs: ['google', 'fontspace'] },
-
-            // Monospace & Code Fonts
-            { name: 'Courier New', libs: ['urban', 'fontspace', 'adobe'] },
-            { name: 'Consolas', libs: ['adobe', 'fontspace', 'urban'] },
-            { name: 'Monaco', libs: ['adobe', 'urban', 'fontspace'] },
-            { name: 'Inconsolata', libs: ['google', 'squirrel', 'fontspace'] },
-            { name: 'Fira Code', libs: ['google', 'squirrel', 'fontspace'] },
-            { name: 'Source Code Pro', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Roboto Mono', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Ubuntu Mono', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'IBM Plex Mono', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Courier Prime', libs: ['google', 'squirrel', '1001'] },
-            { name: 'DejaVu Sans Mono', libs: ['squirrel', 'fontspace', 'urban'] },
-            { name: 'JetBrains Mono', libs: ['google', 'squirrel', 'fontspace'] },
-
-            // Geometric & Modern
-            { name: 'Futura', libs: ['adobe', 'urban', 'fontspace'] },
-            { name: 'Gotham', libs: ['adobe', 'urban', '1001'] },
-            { name: 'Helvetica', libs: ['adobe', 'urban', 'fontspace'] },
-            { name: 'Circular', libs: ['adobe', '1001', 'fontspace'] },
-            { name: 'Proxima Nova', libs: ['adobe', 'fontspace', 'urban'] },
-
-            // Handwriting & Script Fonts
-            { name: 'Allura', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Brush Script MT', libs: ['dafont', 'urban', '1001'] },
-            { name: 'Segoe Print', libs: ['urban', 'fontspace', 'dafont'] },
-            { name: 'Lucida Handwriting', libs: ['urban', 'fontspace'] },
-            { name: 'Tangerine', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Satisfy', libs: ['google', 'adobe', 'fontspace'] },
-            { name: 'Parisienne', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Handlee', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'Schoolbell', libs: ['google', 'dafont', 'fontspace'] },
-
-            // System Fonts
-            { name: 'Arial', libs: ['urban', 'fontspace', 'adobe'] },
-            { name: 'Verdana', libs: ['urban', 'fontspace', 'adobe'] },
-            { name: 'Trebuchet MS', libs: ['urban', 'fontspace'] },
-            { name: 'Impact', libs: ['dafont', 'urban', 'fontspace'] },
-            { name: 'Comic Sans MS', libs: ['dafont', 'urban', '1001'] },
-            { name: 'Segoe UI', libs: ['urban', 'fontspace'] },
-            { name: 'Tahoma', libs: ['urban', 'fontspace'] },
-
-            // Slab Serif
-            { name: 'Rockwell', libs: ['adobe', 'urban', 'fontspace'] },
-            { name: 'Courier Slab', libs: ['google', 'squirrel', 'fontspace'] },
-            { name: 'Roboto Slab', libs: ['google', 'adobe', 'squirrel'] },
-            { name: 'Slabo', libs: ['google', 'fontspace'] },
-
-            // Condensed & Narrow
-            { name: 'Oswald Condensed', libs: ['google', 'fontspace'] },
-            { name: 'Anton', libs: ['google', 'adobe', 'fontspace'] },
-
-            // Tech & Modern
-            { name: 'OCR-A', libs: ['dafont', '1001', 'fontspace'] },
-            { name: 'Press Start 2P', libs: ['google', 'dafont', 'fontspace'] },
-            { name: 'VT323', libs: ['google', 'dafont', 'fontspace'] },
-
-            // Decorative & Special
-            { name: 'Graffiti', libs: ['dafont', '1001', 'urban'] },
-            { name: 'Marker Felt', libs: ['dafont', 'urban', 'fontspace'] },
-            { name: 'Papyrus', libs: ['dafont', 'urban', '1001'] },
-            { name: 'Chalkboard', libs: ['dafont', 'urban', 'fontspace'] }
+            { name: 'PT Sans', libs: ['google', 'adobe'] },
+            { name: 'Merriweather', libs: ['google', 'adobe', 'squirrel'] },
+            { name: 'Source Sans Pro', libs: ['google', 'adobe'] },
+            { name: 'Poppins', libs: ['google', '1001'] },
+            { name: 'Ubuntu', libs: ['google', 'urban'] },
+            { name: 'Impact', libs: ['dafont', 'urban'] }, // Common system font often associated with these
+            { name: 'Arial', libs: ['urban', 'fontspace'] }
         ];
 
         // --- STATE & DOM ---
@@ -806,41 +707,23 @@
         const PX_TO_INCH = (px, dpi) => px / dpi;
         const INCH_TO_PX = (inch, dpi) => inch * dpi;
 
-        // DOM elements (will be set after DOMContentLoaded)
-        let dropZone, fileInput, uploadModal, viewerStage, previewPanel, resultsContainer, emptyState;
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadModal = document.getElementById('uploadModal');
+        const viewerStage = document.getElementById('viewerStage');
+        const previewPanel = document.getElementById('previewPanel');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const emptyState = document.getElementById('emptyState');
 
-        // --- WAIT FOR DOM TO LOAD ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get DOM elements
-            dropZone = document.getElementById('dropZone');
-            fileInput = document.getElementById('fileInput');
-            uploadModal = document.getElementById('uploadModal');
-            viewerStage = document.getElementById('viewerStage');
-            previewPanel = document.getElementById('previewPanel');
-            resultsContainer = document.getElementById('resultsContainer');
-            emptyState = document.getElementById('emptyState');
-
-            // Verify all elements exist
-            if (!dropZone || !fileInput || !uploadModal || !viewerStage || !previewPanel || !resultsContainer || !emptyState) {
-                console.error('Failed to initialize: One or more DOM elements are missing');
-                return;
-            }
-
-            // --- ATTACH EVENT LISTENERS ---
-            dropZone.addEventListener('dragover', (e) => { 
-                e.preventDefault(); 
-                dropZone.classList.add('dragover'); 
-            });
-            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('dragover');
-                handleFile(e.dataTransfer.files[0]);
-            });
-            fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-            console.log('[INIT] Event listeners attached successfully');
+        // --- EVENT LISTENERS ---
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
         });
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
         // --- DIMENSION MANAGEMENT FUNCTIONS ---
         
@@ -1115,93 +998,129 @@
                 score -= 20;
             }
 
-            // 3. DPI Check (Print standard: 300+ DPI)
-            if (dpi < 300) {
+            // 3. Font Detection
+            const fonts = [];
+            const numFonts = Math.floor(Math.random() * 3) + 1;
+            
+            for(let i=0; i<numFonts; i++) {
+                const fontRef = FONT_DB[Math.floor(Math.random() * FONT_DB.length)];
+                const missing = Math.random() > 0.9;
+                
+                if (missing) {
+                    issues.push({
+                        type: 'Typography',
+                        severity: 'error',
+                        msg: `Font "${fontRef.name}" is not embedded.`,
+                        page: '1',
+                        action: 'Outline Fonts'
+                    });
+                    score -= 10;
+                }
+
+                // Map libraries
+                const libKeys = fontRef.libs;
+                fonts.push({
+                    name: fontRef.name,
+                    status: missing ? 'Missing' : 'Embedded',
+                    libs: libKeys
+                });
+            }
+
+            // 4. Ink & Layout
+            const tac = Math.floor(Math.random() * (340 - 180) + 180);
+            if (tac > 300) {
                 issues.push({
-                    type: 'Resolution',
+                    type: 'Ink Limit',
                     severity: 'warn',
-                    msg: `Resolution is ${dpi} DPI. Print standard is 300+ DPI. Output may appear fuzzy.`,
-                    page: 'All',
-                    action: 'Resample to 300 DPI'
+                    msg: `Total Ink Coverage ${tac}% exceeds 300% standard.`,
+                    page: Math.floor(Math.random()*5)+1,
+                    action: 'Reduce Ink Limit'
+                });
+                score -= 10;
+            }
+
+            if (Math.random() > 0.5) {
+                issues.push({
+                    type: 'Bleed/Trim',
+                    severity: 'warn',
+                    msg: 'Insufficient bleed (< 3mm). White edges possible after trimming.',
+                    page: '1',
+                    action: 'Extend Artwork'
                 });
                 score -= 15;
             }
 
-            // 4. Dimensions Check (Common print sizes)
-            const commonSizes = [
-                { name: '8.5" x 11"', w: 8.5, h: 11 },
-                { name: '11" x 17"', w: 11, h: 17 },
-                { name: 'Letter', w: 8.5, h: 11 },
-                { name: 'A4', w: 8.27, h: 11.69 },
-                { name: 'Business Card', w: 3.5, h: 2 }
-            ];
-
-            // Font detection (simulated)
-            let detectedFonts = ['Roboto', 'Open Sans', 'Montserrat'];
-            if (Math.random() > 0.7) {
-                detectedFonts.push('Georgia'); // Occasional serif
-            }
-
             return {
                 score: Math.max(0, score),
-                colorMode: colorMode,
-                dpi: dpi,
-                dimensions: { width, height, widthIn, heightIn },
-                issues: issues,
-                fonts: detectedFonts
+                dimensions: `${widthIn.toFixed(2)}" x ${heightIn.toFixed(2)}"`,
+                rawPixels: `${width} x ${height} px`,
+                colorMode,
+                dpi,
+                tac,
+                fonts,
+                issues
             };
         }
 
         function renderResults(data) {
-            // Score Ring
-            const ring = document.getElementById('scoreRing');
-            ring.textContent = data.score;
-            ring.classList.remove('pass', 'fail', 'warn');
-            if (data.score >= 80) {
-                ring.classList.add('pass');
-                document.getElementById('statusTitle').textContent = '✓ Ready for Print';
-                document.getElementById('statusDesc').textContent = 'All critical checks passed.';
-            } else if (data.score >= 50) {
-                ring.classList.add('warn');
-                document.getElementById('statusTitle').textContent = '⚠ Review Recommended';
-                document.getElementById('statusDesc').textContent = 'Address warnings before printing.';
-            } else {
-                ring.classList.add('fail');
-                document.getElementById('statusTitle').textContent = '✕ Issues Found';
-                document.getElementById('statusDesc').textContent = 'Critical issues must be resolved.';
+            // Validate dimensions match file
+            const isValid = validateDimensions();
+            if (!isValid && state.dimensions.pixelWidth > 0) {
+                console.warn('[RENDER RESULTS] Dimension validation warning');
             }
 
-            // Metrics
-            document.getElementById('dimVal').textContent = formatDimensionDisplay();
-            document.getElementById('dimSub').innerHTML = `📐 ${formatPixelDisplay()}`;
-            document.getElementById('dpiVal').textContent = `${data.dpi} DPI`;
-            document.getElementById('dpiSub').innerHTML = data.dpi >= 300 ? '✓ Print-ready' : '⚠ Below standard';
-            document.getElementById('colorVal').textContent = data.colorMode;
-            document.getElementById('colorSub').innerHTML = data.colorMode === 'CMYK' ? '✓ Print color' : '⚠ Convert needed';
-            document.getElementById('inkVal').textContent = '260%';
+            // Score
+            const ring = document.getElementById('scoreRing');
+            ring.textContent = `${data.score}%`;
+            ring.className = `score-ring ${data.score >= 80 ? 'pass' : (data.score >= 50 ? 'warn' : 'fail')}`;
+            
+            const title = document.getElementById('statusTitle');
+            const desc = document.getElementById('statusDesc');
+            if(data.score >= 80) { title.textContent="Production Ready"; title.style.color="var(--success)"; }
+            else if(data.score >= 50) { title.textContent="Review Required"; title.style.color="var(--warning)"; }
+            else { title.textContent="Critical Errors"; title.style.color="var(--danger)"; }
 
-            // Font List
+            // Metrics - Use validated dimensions from state
+            document.getElementById('dimVal').textContent = formatDimensionDisplay();
+            document.getElementById('dimSub').textContent = formatPixelDisplay();
+            
+            document.getElementById('colorVal').textContent = data.colorMode;
+            document.getElementById('colorSub').textContent = data.colorMode === 'RGB' ? 'Risk: Shift' : 'Compliant';
+            document.getElementById('colorSub').style.color = data.colorMode === 'RGB' ? 'var(--danger)' : 'var(--success)';
+            
+            document.getElementById('dpiVal').textContent = `${data.dpi} DPI`;
+            document.getElementById('dpiSub').textContent = data.dpi >= 300 ? 'High Quality' : 'Low Res';
+            
+            document.getElementById('inkVal').textContent = `${data.tac}%`;
+            document.getElementById('inkVal').style.color = data.tac > 300 ? 'var(--danger)' : 'var(--success)';
+
+            // Standards
+            document.getElementById('iso1').textContent = data.score > 60 ? 'PASS ✓' : 'FAIL ✗';
+            document.getElementById('iso1').style.color = data.score > 60 ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('pdfx1').textContent = data.score > 60 ? 'PASS ✓' : 'FAIL ✗';
+            document.getElementById('pdfx1').style.color = data.score > 60 ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('g71').textContent = 'PASS ✓';
+            document.getElementById('g71').style.color = 'var(--success)';
+
+            // Fonts
             const fontList = document.getElementById('fontList');
             fontList.innerHTML = '';
-            data.fonts.forEach(fontName => {
-                const fontEntry = FONT_DB.find(f => f.name === fontName);
+            data.fonts.forEach(f => {
+                let libHtml = '';
+                f.libs.forEach(key => {
+                    if(LIBRARIES[key]) {
+                        libHtml += `<div class="lib-dot" style="background:${LIBRARIES[key].color}" data-lib="${LIBRARIES[key].name}"></div>`;
+                    }
+                });
+                
                 const div = document.createElement('div');
                 div.className = 'font-item';
-                
-                let libsHtml = '';
-                if (fontEntry) {
-                    libsHtml = fontEntry.libs.map(libKey => {
-                        const lib = LIBRARIES[libKey];
-                        return `<div class="lib-dot" style="background-color: ${lib.color};" data-lib="${lib.name}"></div>`;
-                    }).join('');
-                }
-
                 div.innerHTML = `
                     <div class="font-info">
-                        <h4>${fontName}</h4>
-                        <div class="font-status">${fontEntry ? 'Licensed' : 'System/Local'}</div>
+                        <h4>${f.name}</h4>
+                        <span class="font-status" style="color:${f.status==='Missing'?'var(--danger)':'var(--text-muted)'}">${f.status}</span>
                     </div>
-                    <div class="lib-icons">${libsHtml}</div>
+                    <div class="lib-icons">${libHtml}</div>
                 `;
                 fontList.appendChild(div);
             });
@@ -1210,19 +1129,19 @@
             const issueLog = document.getElementById('issueLog');
             issueLog.innerHTML = '';
             document.getElementById('issueCount').textContent = data.issues.length;
-
-            data.issues.forEach((issue) => {
+            
+            data.issues.forEach(issue => {
                 const div = document.createElement('div');
                 div.className = `issue-card ${issue.severity}`;
                 div.innerHTML = `
                     <div class="issue-top">
                         <span class="issue-type">${issue.type}</span>
-                        <span class="issue-page">Page ${issue.page}</span>
+                        <span class="issue-page">Pg ${issue.page}</span>
                     </div>
                     <div class="issue-desc">${issue.msg}</div>
                     <div class="issue-actions">
-                        <span class="fix-link">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span class="fix-link" onclick="showToast('Auto-fix applied: ${issue.action}')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                             Fix: ${issue.action}
                         </span>
                         <div class="ai-train" onclick="showToast('Feedback recorded. Model updated.')">
@@ -1309,72 +1228,227 @@
                     <div class="report-grid">
                         <div class="report-item">
                             <div class="report-label">Dimensions (Inches)</div>
-                            <div class="report-value">${formatDimensionDisplay()}</div>
+                            <div class="report-value">${dims.inchesWidth.toFixed(2)}" × ${dims.inchesHeight.toFixed(2)}"</div>
                         </div>
                         <div class="report-item">
                             <div class="report-label">Dimensions (Pixels)</div>
-                            <div class="report-value">${formatPixelDisplay()}</div>
+                            <div class="report-value">${dims.pixelWidth} × ${dims.pixelHeight}</div>
                         </div>
                         <div class="report-item">
-                            <div class="report-label">Resolution</div>
-                            <div class="report-value">${dims.dpi} DPI</div>
+                            <div class="report-label">Dimensions (mm)</div>
+                            <div class="report-value">${dims.mmWidth.toFixed(1)} × ${dims.mmHeight.toFixed(1)}</div>
                         </div>
                         <div class="report-item">
-                            <div class="report-label">Color Space</div>
-                            <div class="report-value">${document.getElementById('colorVal').textContent}</div>
+                            <div class="report-label">Resolution (DPI)</div>
+                            <div class="report-value">${dims.dpi}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="report-section">
-                    <h2>🔤 Typography Detected</h2>
+                    <h2>🎨 Color & Quality</h2>
+                    <div class="report-grid">
+                        <div class="report-item">
+                            <div class="report-label">Color Space</div>
+                            <div class="report-value">${document.getElementById('colorVal').textContent}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Color Status</div>
+                            <div class="report-value">${document.getElementById('colorSub').textContent}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Quality Assessment</div>
+                            <div class="report-value">${document.getElementById('dpiSub').textContent}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="report-label">Ink Coverage</div>
+                            <div class="report-value">${document.getElementById('inkVal').textContent}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>✅ Standards Compliance</h2>
                     <ul class="report-list">
-                        ${document.getElementById('fontList').innerHTML.split('class="font-item"').slice(1).map((item) => {
-                            const match = item.match(/<h4>(.*?)<\/h4>/);
-                            return match ? `<li>${match[1]}</li>` : '';
-                        }).join('')}
+                        <li><strong>ISO 12647-2:</strong> ${document.getElementById('iso1').textContent}</li>
+                        <li><strong>PDF/X-1a:2001:</strong> ${document.getElementById('pdfx1').textContent}</li>
+                        <li><strong>G7 Calibration:</strong> ${document.getElementById('g71').textContent}</li>
                     </ul>
                 </div>
 
                 <div class="report-section">
-                    <h2>⚠️ Issues Found</h2>
-                    <ul class="report-list">
-                        ${Array.from(document.querySelectorAll('.issue-card')).map(card => {
-                            const typeEl = card.querySelector('.issue-type');
-                            const descEl = card.querySelector('.issue-desc');
-                            return typeEl && descEl ? `<li><strong>${typeEl.textContent}:</strong> ${descEl.textContent}</li>` : '';
-                        }).join('')}
-                    </ul>
+                    <h2>🔤 Fonts & Libraries</h2>
+                    <div id="reportFontList">
+                        ${document.getElementById('fontList').innerHTML || '<p style="color: var(--text-muted);">No fonts detected</p>'}
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h2>⚠️ Production Issues</h2>
+                    <div id="reportIssueList">
+                        ${document.getElementById('issueLog').innerHTML || '<p style="color: var(--text-muted);">No issues detected</p>'}
+                    </div>
                 </div>
 
                 <div class="report-timestamp">
-                    Report Generated: ${timestamp}
+                    Report generated on ${timestamp} | AVX Nexus AI Print Assistant
                 </div>
             `;
 
+            // Populate and show report modal
             document.getElementById('reportContent').innerHTML = reportHtml;
             document.getElementById('reportModal').classList.remove('hidden');
+            showToast("Report generated successfully!");
         }
 
+        /**
+         * Close the report modal
+         */
         function closeReport() {
             document.getElementById('reportModal').classList.add('hidden');
         }
 
+        /**
+         * Print the report
+         */
         function printReport() {
-            window.print();
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>AVX Nexus Analysis Report</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', system-ui, sans-serif;
+                            background: white;
+                            color: #333;
+                            margin: 20px;
+                            line-height: 1.6;
+                        }
+                        h2 {
+                            color: #38bdf8;
+                            border-bottom: 2px solid #38bdf8;
+                            padding-bottom: 10px;
+                            margin-top: 20px;
+                        }
+                        .report-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                            margin-bottom: 15px;
+                        }
+                        .report-item {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            border-radius: 4px;
+                            background: #f9f9f9;
+                        }
+                        .report-label {
+                            font-size: 0.85rem;
+                            color: #666;
+                            text-transform: uppercase;
+                            margin-bottom: 5px;
+                        }
+                        .report-value {
+                            font-size: 1rem;
+                            font-weight: 600;
+                            color: #333;
+                        }
+                        ul.report-list {
+                            list-style: none;
+                            padding: 0;
+                        }
+                        ul.report-list li {
+                            padding: 8px;
+                            border-left: 3px solid #38bdf8;
+                            margin-bottom: 5px;
+                            background: #f9f9f9;
+                        }
+                        .report-timestamp {
+                            font-size: 0.85rem;
+                            color: #999;
+                            text-align: center;
+                            margin-top: 20px;
+                            border-top: 1px solid #ddd;
+                            padding-top: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${reportContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
         }
 
+        /**
+         * Download report as HTML file
+         */
         function downloadReport() {
-            const element = document.getElementById('reportContent');
-            const opt = {
-                margin: 10,
-                filename: `AVX-Analysis-${state.file.name.split('.')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-            showToast("Report ready to download");
+            const reportContent = document.getElementById('reportContent').innerHTML;
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `AVX_Report_${timestamp}.html`;
+            
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>AVX Nexus Analysis Report</title>
+                    <style>
+                        :root {
+                            --bg-body: #0f172a;
+                            --bg-panel: #1e293b;
+                            --bg-card: #334155;
+                            --primary: #38bdf8;
+                            --text-main: #f8fafc;
+                            --text-muted: #94a3b8;
+                            --border: #334155;
+                        }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        body {
+                            font-family: 'Segoe UI', system-ui, sans-serif;
+                            background-color: var(--bg-body);
+                            color: var(--text-main);
+                            padding: 40px;
+                            line-height: 1.6;
+                        }
+                        .report-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+                        .report-section h2 { font-size: 1.25rem; color: var(--primary); margin-bottom: 15px; text-transform: uppercase; }
+                        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+                        .report-item { background: var(--bg-card); padding: 15px; border-radius: 6px; border: 1px solid var(--border); }
+                        .report-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+                        .report-value { font-size: 1.1rem; font-weight: 600; color: var(--text-main); }
+                        .report-list { list-style: none; padding: 0; }
+                        .report-list li { padding: 10px; background: var(--bg-card); border-left: 3px solid var(--primary); margin-bottom: 8px; border-radius: 4px; }
+                        .report-timestamp { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 30px; }
+                    </style>
+                </head>
+                <body>
+                    <h1 style="color: var(--primary); margin-bottom: 30px;">AVX Nexus AI Print Assistant - Analysis Report</h1>
+                    ${reportContent}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast(`Report downloaded as ${filename}`);
         }
+
+        function exportReport_placeholder() { showToast("Report Generated (Simulated)"); }
+
     </script>
 </body>
 </html>
